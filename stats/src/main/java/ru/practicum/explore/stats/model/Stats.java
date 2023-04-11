@@ -28,10 +28,10 @@ public class Stats {
     String app;
 
     @Column(name = "uri")
-    Integer uri;
+    String uri;
 
     @Column(name = "ip")
-    Integer ip;
+    String ip;
 
     @Column(name = "view_date")
     LocalDateTime timestamp;

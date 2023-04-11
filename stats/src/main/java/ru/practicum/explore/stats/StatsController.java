@@ -1,28 +1,31 @@
 package ru.practicum.explore.stats;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.explore.stats.dto.StatsDto;
+import ru.practicum.explore.stats.service.StatsService;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequestMapping
-@RequiredArgsConstructor
-@Slf4j
-@Validated
 public class StatsController {
 
-    @GetMapping("/stats")
-    public void getFrameStats(@PathVariable Long userId) {
+    final StatsService statsService;
 
-        //return userClient.findUserById(userId);
+    public StatsController(StatsService statsService) {
+        this.statsService = statsService;
+    }
+
+    @GetMapping("/stats")
+    public void getFrameStats(@RequestParam(name = "start") String start,
+                              @RequestParam(name = "end") String end,
+                              @RequestParam(name = "uris", required = false) List<String> uris,
+                              @RequestParam(name = "unique", required = false) Boolean isUnique) {
+        statsService.getFrameStats(start, end, uris, isUnique);
     }
 
     @PostMapping("/hit")
-    public void postHitToStats() {
-
-        //return userClient.addUser(userDto);
+    public void postHitToStats(@RequestBody StatsDto statsDto) {
+        statsService.postHitToStats(statsDto);
     }
-
 }
