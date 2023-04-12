@@ -1,6 +1,6 @@
-package ru.practicum.explore.stats.dto;
+package ru.practicum.statistics.stats.dto;
 
-import ru.practicum.explore.stats.model.Hit;
+import ru.practicum.statistics.stats.model.Hit;
 
 import java.time.LocalDateTime;
 

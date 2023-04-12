@@ -1,4 +1,4 @@
-package ru.practicum.explore.stats.dto;
+package ru.practicum.statistics.stats.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +7,10 @@ import lombok.experimental.PackagePrivate;
 @Data
 @Builder
 @PackagePrivate
-public class StatsDto {
+public class HitDto {
+    Integer id;
     String app;
     String uri;
-    long hits;
+    String ip;
+    String timestamp;
 }

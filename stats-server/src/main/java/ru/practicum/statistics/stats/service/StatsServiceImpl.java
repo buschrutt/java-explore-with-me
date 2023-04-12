@@ -1,15 +1,15 @@
-package ru.practicum.explore.stats.service;
+package ru.practicum.statistics.stats.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.explore.stats.dto.HitDto;
-import ru.practicum.explore.stats.dto.HitDtoMapper;
-import ru.practicum.explore.stats.dto.StatsDto;
-import ru.practicum.explore.stats.dto.StatsDtoMapper;
-import ru.practicum.explore.stats.model.Hit;
-import ru.practicum.explore.stats.model.Stats;
-import ru.practicum.explore.stats.repository.StatsRepository;
+import ru.practicum.statistics.stats.dto.HitDto;
+import ru.practicum.statistics.stats.dto.HitDtoMapper;
+import ru.practicum.statistics.stats.dto.StatsDto;
+import ru.practicum.statistics.stats.dto.StatsDtoMapper;
+import ru.practicum.statistics.stats.model.Hit;
+import ru.practicum.statistics.stats.model.Stats;
+import ru.practicum.statistics.stats.repository.StatsRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

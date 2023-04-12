@@ -1,4 +1,4 @@
-package ru.practicum.explore.stats.model;
+package ru.practicum.statistics.stats.model;
 
 import lombok.*;
 import lombok.experimental.PackagePrivate;
