@@ -23,7 +23,7 @@
 	</properties>
 
 	<modules>
-		<module>stats</module>
+		<module>stats-server</module>
 	</modules>
 
 	<build>

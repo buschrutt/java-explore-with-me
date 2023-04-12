@@ -4,12 +4,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.PackagePrivate;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @PackagePrivate
-public class StatsDto {
+public class HitDto {
     Integer id;
     String app;
     String uri;

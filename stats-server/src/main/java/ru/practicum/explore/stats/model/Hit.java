@@ -13,13 +13,12 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Table(name = "stats")
-@Getter
-@Setter
+@Data
 @ToString
 @PackagePrivate
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stats {
+public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -34,5 +33,5 @@ public class Stats {
     String ip;
 
     @Column(name = "view_date")
-    LocalDateTime timestamp;
+    LocalDateTime viewDate;
 }
