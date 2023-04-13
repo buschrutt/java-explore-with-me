@@ -1,5 +1,6 @@
 package ru.practicum.statistics.stats.dto;
 
+import ru.practicum.domain.HitDto;
 import ru.practicum.statistics.stats.model.Hit;
 
 import java.time.LocalDateTime;

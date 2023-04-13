@@ -1,5 +1,6 @@
 package ru.practicum.statistics.stats.dto;
 
+import ru.practicum.domain.StatsDto;
 import ru.practicum.statistics.stats.model.Stats;
 
 public class StatsDtoMapper {
