@@ -1,10 +1,10 @@
-package ru.practicum.statistics.stats;
+package ru.practicum.stats;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.domain.HitDto;
 import ru.practicum.domain.StatsDto;
-import ru.practicum.statistics.stats.service.StatsService;
+import ru.practicum.stats.service.StatsService;
 
 import java.util.List;
 

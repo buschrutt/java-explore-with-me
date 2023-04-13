@@ -1,7 +1,7 @@
-package ru.practicum.statistics.stats.dto;
+package ru.practicum.stats.mapping;
 
 import ru.practicum.domain.HitDto;
-import ru.practicum.statistics.stats.model.Hit;
+import ru.practicum.stats.model.Hit;
 
 import java.time.LocalDateTime;
 

@@ -1,7 +1,7 @@
-package ru.practicum.statistics.stats.dto;
+package ru.practicum.stats.mapping;
 
 import ru.practicum.domain.StatsDto;
-import ru.practicum.statistics.stats.model.Stats;
+import ru.practicum.stats.model.Stats;
 
 public class StatsDtoMapper {
     public static StatsDto statsToStatsDto(Stats stats) {
