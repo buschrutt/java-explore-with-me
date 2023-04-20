@@ -1,4 +1,11 @@
 package ru.practicum.compilation.repository;
 
-public interface CompilationRepository {
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.practicum.compilation.model.Compilation;
+
+import java.util.List;
+
+public interface CompilationRepository extends JpaRepository<Compilation, Integer> {
+    List<Compilation> findCompilationsByPinned(Boolean pinned, Pageable pageable);
 }

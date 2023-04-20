@@ -1,6 +1,5 @@
 package ru.practicum.user.service;
 
-import ru.practicum.error.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 
 import java.util.List;
@@ -10,5 +9,5 @@ public interface UserService {
 
     UserDto addUser(UserDto userDto);
 
-    void deleteUser(Integer userId) throws NotFoundException;
+    void deleteUser(Integer userId);
 }

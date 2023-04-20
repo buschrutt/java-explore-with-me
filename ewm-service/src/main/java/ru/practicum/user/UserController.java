@@ -3,7 +3,6 @@ package ru.practicum.user;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.error.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.service.UserService;
 
@@ -14,7 +13,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/users")
+@RequestMapping
 public class UserController {
     private final UserService userService;
 
@@ -40,7 +39,7 @@ public class UserController {
     // %%%%%%%%%% %%%%%%%%%% admin processing func %%%%%%%%%% %%%%%%%%%%
     @DeleteMapping("/admin/users/{userId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable Integer userId) throws NotFoundException {
+    public void deleteUser(@PathVariable Integer userId) {
         userService.deleteUser(userId);
     }
 }

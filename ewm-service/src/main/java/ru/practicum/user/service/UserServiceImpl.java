@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import ru.practicum.error.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserDtoMapper;
 import ru.practicum.user.model.User;
@@ -34,8 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Integer userId) throws NotFoundException {
-        userRepository.delete(userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("deleteUser-- No User Found-- userId: " + userId)));
+    public void deleteUser(Integer userId) {
+        userRepository.delete(userRepository.findById(userId).orElseThrow());
     }
 }

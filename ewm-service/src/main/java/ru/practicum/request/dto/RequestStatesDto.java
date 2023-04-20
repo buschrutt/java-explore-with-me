@@ -4,17 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.PackagePrivate;
+import ru.practicum.request.model.Request;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @PackagePrivate
-public class RequestDto {
-    Integer id;
-    Integer requester;
-    Integer event;
-    LocalDateTime created;
-    String status;
+public class RequestStatesDto {
+    List<RequestDto> confirmedRequestsDto;
+    List<RequestDto> rejectedRequestsDto;
 }

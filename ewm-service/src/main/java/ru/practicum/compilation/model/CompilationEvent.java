@@ -16,10 +16,10 @@ import javax.persistence.Table;
 @PackagePrivate
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompilationEvents {
-    @Id
+public class CompilationEvent {
     @Column(name = "event_id")
     Integer eventId;
+    @Id
     @Column(name = "compilation_id")
     Integer compilationId;
 }
