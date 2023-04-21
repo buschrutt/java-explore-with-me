@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.service.CategoryService;
-import ru.practicum.error.ewmException;
+import ru.practicum.error.EwmException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -24,18 +24,18 @@ public class CategoryController {
 
     @PostMapping("/admin/categories")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public CategoryDto addCategory(@Valid @RequestBody CategoryDto categoryDto) throws ewmException {
+    public CategoryDto addCategory(@Valid @RequestBody CategoryDto categoryDto) throws EwmException {
         return categoryService.addCategory(categoryDto);
     }
 
     @PatchMapping("/admin/categories/{catId}")
-    public CategoryDto changeCategory(@PathVariable Integer catId, @RequestBody CategoryDto categoryDto) throws ewmException {
+    public CategoryDto changeCategory(@PathVariable Integer catId, @Valid @RequestBody CategoryDto categoryDto) throws EwmException {
         return categoryService.updateCategory(catId, categoryDto);
     }
 
     @DeleteMapping("/admin/categories/{catId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteCategory(@PathVariable Integer catId) {
+    public void deleteCategory(@PathVariable Integer catId) throws EwmException {
         categoryService.deleteCategory(catId);
     }
 
@@ -46,7 +46,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{catId}")
-    public CategoryDto getCategoryById(@PathVariable Integer catId) {
+    public CategoryDto getCategoryById(@PathVariable Integer catId) throws EwmException {
         return categoryService.getCategoryById(catId);
     }
 }

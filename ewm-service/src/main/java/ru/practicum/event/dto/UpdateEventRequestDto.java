@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.PackagePrivate;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 @PackagePrivate
 @NoArgsConstructor
 @AllArgsConstructor
-public class PatchEventDto {
+public class UpdateEventRequestDto {
     String annotation;
     Integer category;
     String description;
@@ -25,5 +24,6 @@ public class PatchEventDto {
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
+    String stateAction;
     String title;
 }

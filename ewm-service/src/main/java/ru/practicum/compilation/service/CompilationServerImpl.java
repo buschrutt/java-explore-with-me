@@ -12,8 +12,8 @@ import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.model.CompilationEvent;
 import ru.practicum.compilation.repository.CompilationEventRepository;
 import ru.practicum.compilation.repository.CompilationRepository;
-import ru.practicum.error.ewmException;
-import ru.practicum.error.model.ewmExceptionModel;
+import ru.practicum.error.EwmException;
+import ru.practicum.error.model.EwmExceptionModel;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
 
@@ -43,9 +43,9 @@ public class CompilationServerImpl implements CompilationService {
     }
 
     @Override
-    public CompilationWithEventsDto findCompilationById(Integer compId) throws ewmException {
+    public CompilationWithEventsDto findCompilationById(Integer compId) throws EwmException {
         Compilation comp = compilationRepository.findById(compId).orElseThrow(() ->
-                new ewmException(new ewmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND", HttpStatus.NOT_FOUND)));
+                new EwmException(new EwmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND", HttpStatus.NOT_FOUND)));
         List<Event> events = eventRepository.findAllByIdIn(compilationEventRepository.findCompilationEventsByCompilationId(comp.getId())
                 .stream().map(CompilationEvent::getEventId).collect(Collectors.toList()));
         return CompilationDtoMapper.toCompilationWithEventsDto(comp, events);
@@ -53,11 +53,11 @@ public class CompilationServerImpl implements CompilationService {
 
 
     @Override
-    public CompilationWithEventsDto addCompilation(CompilationDto compilationDto) throws ewmException {
+    public CompilationWithEventsDto addCompilation(CompilationDto compilationDto) throws EwmException {
         List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
         Compilation compilation = CompilationDtoMapper.toCompilation(compilationDto);
         if (compilation.getTitle().isEmpty()) {
-            throw new ewmException(new ewmExceptionModel("Field: title. Error: must not be blank. Value: null", "Incorrectly made request.", "BAD_REQUEST",
+            throw new EwmException(new EwmExceptionModel("Field: title. Error: must not be blank. Value: null", "Incorrectly made request.", "BAD_REQUEST",
                     HttpStatus.BAD_REQUEST));
         }
         compilation = compilationRepository.save(compilation);
@@ -69,9 +69,9 @@ public class CompilationServerImpl implements CompilationService {
     }
 
     @Override
-    public void deleteCompilation(Integer compId) throws ewmException {
+    public void deleteCompilation(Integer compId) throws EwmException {
         Compilation comp = compilationRepository.findById(compId).orElseThrow(() ->
-                new ewmException(new ewmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND",
+                new EwmException(new EwmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND",
                         HttpStatus.NOT_FOUND)));
         compilationRepository.delete(comp);
         List<CompilationEvent> compEventList = compilationEventRepository.findCompilationEventsByCompilationId(compId);
@@ -79,9 +79,9 @@ public class CompilationServerImpl implements CompilationService {
     }
 
     @Override
-    public CompilationWithEventsDto updateCompilation(Integer compId, CompilationDto compilationDto) throws ewmException {
-        Compilation comp = compilationRepository.findById(compId).orElseThrow(() ->
-                new ewmException(new ewmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND",
+    public CompilationWithEventsDto updateCompilation(Integer compId, CompilationDto compilationDto) throws EwmException {
+        compilationRepository.findById(compId).orElseThrow(() ->
+                new EwmException(new EwmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND",
                         HttpStatus.NOT_FOUND)));
         List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
         Compilation compilation = CompilationDtoMapper.toCompilation(compilationDto);

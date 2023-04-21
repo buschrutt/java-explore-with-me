@@ -2,12 +2,13 @@ package ru.practicum.event.dto;
 
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.model.Event;
-import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class EventDtoMapper {
-    public static EventDto toEventDto(Event event, Integer confirmed, UserDto initiator, LocationDto location, Integer views, CategoryDto catDto) {
+    public static EventDto toEventDto(Event event, Integer confirmed, UserShortDto initiator, LocationDto location, Integer views, CategoryDto catDto) {
         return EventDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -38,14 +39,18 @@ public class EventDtoMapper {
                 .location(locationId)
                 .paid(postDto.getPaid())
                 .participantLimit(postDto.getParticipantLimit())
-                .publishedOn(LocalDateTime.now())
                 .requestModeration(postDto.getRequestModeration())
-                .state("PENDING")
                 .title(postDto.getTitle())
                 .build();
     }
 
-    public static Event toEventFromPatch(PatchEventDto patchEventDto, Integer locationId) {
+    public static Event toEventFromPatch(UpdateEventRequestDto patchEventDto, Integer locationId) {
+        String state = "PENDING";
+        if (Objects.equals(patchEventDto.getStateAction(), "PUBLISH_EVENT")) {
+            state = "PUBLISHED";
+        } else if (Objects.equals(patchEventDto.getStateAction(), "REJECT_EVENT")) {
+            state = "CANCELED";
+        }
         return Event.builder()
                 .annotation(patchEventDto.getAnnotation())
                 .category(patchEventDto.getCategory())
@@ -57,7 +62,7 @@ public class EventDtoMapper {
                 .participantLimit(patchEventDto.getParticipantLimit())
                 .publishedOn(LocalDateTime.now())
                 .requestModeration(patchEventDto.getRequestModeration())
-                .state("PENDING")
+                .state(state)
                 .title(patchEventDto.getTitle())
                 .build();
     }

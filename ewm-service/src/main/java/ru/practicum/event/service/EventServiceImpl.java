@@ -10,18 +10,20 @@ import ru.practicum.category.dto.CategoryDtoMapper;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.client.StatisticsClient;
 import ru.practicum.domain.HitDto;
-import ru.practicum.error.ewmException;
-import ru.practicum.error.model.ewmExceptionModel;
+import ru.practicum.error.EwmException;
+import ru.practicum.error.model.EwmExceptionModel;
 import ru.practicum.event.dto.*;
+import ru.practicum.event.dto.EventDtoMapper;
+import ru.practicum.event.dto.LocationDtoMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
-import ru.practicum.event.model.State;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.repository.LocationRepository;
-import ru.practicum.request.model.RequestState;
+import ru.practicum.request.model.RequestStatuses;
 import ru.practicum.request.repository.RequestRepository;
-import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserDtoMapper;
+import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -73,7 +75,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> findAllEvents(List<Integer> users, List<State> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
+    public List<EventDto> findAllEvents(List<Integer> users, List<EventState> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         LocalDateTime fromTime = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
         LocalDateTime toTime = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
@@ -82,9 +84,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto updateEvent(Integer eventId, PostEventDto postEventDto) {
+    public EventDto updateEvent(Integer eventId, UpdateEventRequestDto requestDto) throws EwmException {
         Event event = eventRepository.findById(eventId).orElseThrow();
-        return convertEventToUpdatedDto(event, postEventDto);
+        ValidateUpdateEventDto(requestDto, event);
+        return convertEventToUpdatedDto(event, requestDto);
     }
 
     @Override
@@ -98,49 +101,47 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto addEvent(Integer userId, PostEventDto postEventDto) {
+    public EventDto addEvent(Integer userId, PostEventDto postEventDto) throws EwmException {
         Event event = EventDtoMapper.toEvent(postEventDto, getLocationId(postEventDto));
+        ValidateAddEventDto(postEventDto);
         event.setInitiator(userId);
         return getEventDtoFunc(eventRepository.save(event));
     }
 
     @Override
-    public EventDto findUserEvent(Integer userId, Integer eventId) throws ewmException {
+    public EventDto findUserEvent(Integer userId, Integer eventId) throws EwmException {
         Event event = eventRepository.findEventByIdAndInitiator(eventId, userId);
         if (event == null) {
-            throw new ewmException(new ewmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
+            throw new EwmException(new EwmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
                     HttpStatus.NOT_FOUND));
         }
         return getEventDtoFunc(eventRepository.save(event));
     }
 
     @Override
-    public EventDto updateUserEvent(Integer userId, Integer eventId, PatchEventDto patchEventDto) throws ewmException {
+    public EventDto updateUserEvent(Integer userId, Integer eventId, UpdateEventRequestDto patchEventDto) throws EwmException {
         Event event = eventRepository.findEventByIdAndInitiator(eventId, userId);
-        if (event == null) {
-            throw new ewmException(new ewmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
-                    HttpStatus.NOT_FOUND));
-        }
+        ValidateUpdateUseEventDto(patchEventDto, event);
         return convertEventToUpdatedDtoPatch(event, patchEventDto);
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
     EventDto  getEventDtoFunc(Event event) {
-        UserDto initiatorDto = UserDtoMapper.toUserDto(userRepository.findById(event.getInitiator()).orElseThrow());
+        UserShortDto initiatorDto = UserDtoMapper.toUserShortDto(userRepository.findById(event.getInitiator()).orElseThrow());
         LocationDto locationDto = LocationDtoMapper.toLocationDto(locationRepository.findById(event.getLocation()).orElseThrow());
         CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
-        Integer confirmed = requestRepository.findRequestByStatus(RequestState.CONFIRMED.toString()).size();
+        Integer confirmed = requestRepository.findRequestByStatus(RequestStatuses.CONFIRMED.toString()).size();
         Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), List.of("/events/" + event.getId()), true).size();
         return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
     }
 
-    EventDto convertEventToUpdatedDto(Event event, PostEventDto postEventDto) {
-        Event eventWUpdate = EventDtoMapper.toEvent(postEventDto, null);
+    EventDto convertEventToUpdatedDto(Event event, UpdateEventRequestDto requestDto) {
+        Event eventWUpdate = EventDtoMapper.toEventFromPatch(requestDto, null);
         eventWUpdate.setCreatedOn(null);
         return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
     }
 
-    EventDto convertEventToUpdatedDtoPatch(Event event, PatchEventDto patchEventDto) {
+    EventDto convertEventToUpdatedDtoPatch(Event event, UpdateEventRequestDto patchEventDto) {
         Event eventWUpdate = EventDtoMapper.toEventFromPatch(patchEventDto, null);
         eventWUpdate.setCreatedOn(null);
         return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
@@ -188,5 +189,42 @@ public class EventServiceImpl implements EventService {
         }
         locationId = location.getId();
         return locationId;
+    }
+
+    void ValidateUpdateEventDto(UpdateEventRequestDto requestDto, Event event) throws EwmException {
+        if (requestDto.getEventDate() != null && requestDto.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new EwmException(new EwmExceptionModel("New Event date isBefore now", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+        if (requestDto.getStateAction() != null && Objects.equals(requestDto.getStateAction(), "PUBLISH_EVENT") && Objects.equals(event.getState(), "PUBLISHED")) {
+            throw new EwmException(new EwmExceptionModel("Event is already PUBLISHED", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+        if (requestDto.getStateAction() != null && Objects.equals(requestDto.getStateAction(), "PUBLISH_EVENT") && Objects.equals(event.getState(), "CANCELED")) {
+            throw new EwmException(new EwmExceptionModel("Event is CANCELED", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+        if (requestDto.getStateAction() != null && Objects.equals(requestDto.getStateAction(), "REJECT_EVENT") && Objects.equals(event.getState(), "PUBLISHED")) {
+            throw new EwmException(new EwmExceptionModel("Event has PUBLISH & can't be rejected", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+    }
+
+    void ValidateAddEventDto(PostEventDto postEventDto) throws EwmException {
+        if (postEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new EwmException(new EwmExceptionModel("New Event date isBefore now = 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+    }
+
+    void ValidateUpdateUseEventDto(UpdateEventRequestDto patchEventDto, Event event) throws EwmException {
+        if (patchEventDto.getEventDate() != null && patchEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new EwmException(new EwmExceptionModel("New Event date isBefore now = 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
+        if (Objects.equals(event.getState(), "PUBLISHED")) {
+            throw new EwmException(new EwmExceptionModel("Can't update PUBLISHED event", "Data Integrity Violation.", "CONFLICT", // 409
+                    HttpStatus.CONFLICT));
+        }
     }
 }

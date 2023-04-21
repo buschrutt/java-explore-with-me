@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.PackagePrivate;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +25,7 @@ public class EventDto {
     String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    UserDto initiator;
+    UserShortDto initiator;
     LocationDto location;
     Boolean paid;
     Integer participantLimit;

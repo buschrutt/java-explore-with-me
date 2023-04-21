@@ -1,4 +1,4 @@
-package ru.practicum.request.model;
+package ru.practicum.request.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 @PackagePrivate
-public class RequestChangeStates {
+public class RequestUpdateStatusDto {
     List<Integer> requestIds;
     String status;
 }

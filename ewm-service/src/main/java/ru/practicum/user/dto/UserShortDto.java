@@ -1,17 +1,18 @@
-package ru.practicum.request.dto;
+package ru.practicum.user.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.PackagePrivate;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @Builder
 @PackagePrivate
-public class RequestChangeStatesDto {
-    List<Integer> requestIds;
-    String status;
+public class UserShortDto {
+    int id;
+    @NotNull
+    String name;
 }

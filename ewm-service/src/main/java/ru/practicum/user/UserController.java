@@ -3,6 +3,7 @@ package ru.practicum.user;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.error.EwmException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.service.UserService;
 
@@ -32,7 +33,7 @@ public class UserController {
     // %%%%%%%%%% %%%%%%%%%% admin processing func %%%%%%%%%% %%%%%%%%%%
     @PostMapping("/admin/users")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto addUser(@Valid @RequestBody UserDto userDto) throws EwmException {
         return userService.addUser(userDto);
     }
 

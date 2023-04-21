@@ -3,11 +3,11 @@ package ru.practicum.event;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.error.ewmException;
+import ru.practicum.error.EwmException;
 import ru.practicum.event.dto.EventDto;
-import ru.practicum.event.dto.PatchEventDto;
+import ru.practicum.event.dto.UpdateEventRequestDto;
 import ru.practicum.event.dto.PostEventDto;
-import ru.practicum.event.model.State;
+import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +44,7 @@ public class EventController {
 
     @GetMapping("/admin/events")
     public List<EventDto> findAllEvents(@RequestParam(value = "users", required = false) List<Integer> users,
-                                        @RequestParam(value = "states", required = false) List<State> states,
+                                        @RequestParam(value = "states", required = false) List<EventState> states,
                                         @RequestParam(value = "categories", required = false) List<Integer> categories,
                                         @RequestParam(value = "rangeStart", required = false) String rangeStart,
                                         @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
@@ -55,8 +55,8 @@ public class EventController {
 
     @PatchMapping("/admin/events/{eventId}")
     public EventDto updateEvent(@PathVariable Integer eventId,
-                                @RequestBody PostEventDto postEventDto) {
-        return eventService.updateEvent(eventId, postEventDto);
+                                @RequestBody UpdateEventRequestDto updateEventRequestDto) throws EwmException {
+        return eventService.updateEvent(eventId, updateEventRequestDto);
     }
 
     @GetMapping("/users/{userId}/events")
@@ -69,20 +69,20 @@ public class EventController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/users/{userId}/events")
     public EventDto addEvent(@PathVariable @NotNull Integer userId,
-                             @RequestBody @Valid PostEventDto postEventDto) {
+                             @RequestBody @Valid PostEventDto postEventDto) throws EwmException {
         return eventService.addEvent(userId, postEventDto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
     public EventDto findUserEvent(@PathVariable Integer userId,
-                                  @PathVariable Integer eventId) throws ewmException {
+                                  @PathVariable Integer eventId) throws EwmException {
         return eventService.findUserEvent(userId, eventId);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
     public EventDto updateUserEvent(@PathVariable Integer userId,
                                     @PathVariable Integer eventId,
-                                    @RequestBody @Valid PatchEventDto patchEventDto) throws ewmException {
-        return eventService.updateUserEvent(userId, eventId, patchEventDto);
+                                    @RequestBody @Valid UpdateEventRequestDto updateEventRequestDto) throws EwmException {
+        return eventService.updateUserEvent(userId, eventId, updateEventRequestDto);
     }
 }

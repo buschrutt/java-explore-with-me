@@ -1,10 +1,7 @@
 package ru.practicum.request.dto;
 
 import ru.practicum.request.model.Request;
-import ru.practicum.request.model.RequestState;
-import ru.practicum.request.model.RequestChangeStates;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class RequestDtoMapper {
@@ -19,17 +16,10 @@ public class RequestDtoMapper {
                 .build();
     }
 
-    public static RequestChangeStates toRequestChangeStates(RequestChangeStatesDto requestChangeStatesDto) {
-        return RequestChangeStates.builder()
-                .requestIds(requestChangeStatesDto.getRequestIds())
-                .status(requestChangeStatesDto.getStatus())
-                .build();
-    }
-
-    public static RequestStatesDto toRequestStatesDto(List<RequestDto> confirmedRequestDtoList, List<RequestDto> rejectedRequestDtoList) {
-        return RequestStatesDto.builder()
-                .confirmedRequestsDto(confirmedRequestDtoList)
-                .rejectedRequestsDto(rejectedRequestDtoList)
+    public static RequestStatusDto toRequestStatesDto(List<RequestDto> confirmedRequestDtoList, List<RequestDto> rejectedRequestDtoList) {
+        return RequestStatusDto.builder()
+                .confirmedRequests(confirmedRequestDtoList)
+                .rejectedRequests(rejectedRequestDtoList)
                 .build();
     }
 

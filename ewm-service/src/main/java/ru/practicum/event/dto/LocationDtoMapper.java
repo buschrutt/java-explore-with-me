@@ -1,5 +1,6 @@
 package ru.practicum.event.dto;
 
+import ru.practicum.event.dto.LocationDto;
 import ru.practicum.event.model.Location;
 
 public class LocationDtoMapper {

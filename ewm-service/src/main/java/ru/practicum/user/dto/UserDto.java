@@ -1,12 +1,14 @@
 package ru.practicum.user.dto;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.PackagePrivate;
 
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 @Builder
 @PackagePrivate
 public class UserDto {

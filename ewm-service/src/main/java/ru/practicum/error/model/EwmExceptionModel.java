@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ewmExceptionModel {
+public class EwmExceptionModel {
     String message;
     String reason;
     String status;

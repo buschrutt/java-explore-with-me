@@ -1,10 +1,10 @@
 package ru.practicum.event.service;
 
-import ru.practicum.error.ewmException;
+import ru.practicum.error.EwmException;
 import ru.practicum.event.dto.EventDto;
-import ru.practicum.event.dto.PatchEventDto;
+import ru.practicum.event.dto.UpdateEventRequestDto;
 import ru.practicum.event.dto.PostEventDto;
-import ru.practicum.event.model.State;
+import ru.practicum.event.model.enums.EventState;
 
 import java.util.List;
 
@@ -13,15 +13,15 @@ public interface EventService {
 
     EventDto getEventById(Integer id, String ip);
 
-    List<EventDto> findAllEvents(List<Integer> users, List<State> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
+    List<EventDto> findAllEvents(List<Integer> users, List<EventState> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
 
-    EventDto updateEvent(Integer eventId, PostEventDto postEventDto);
+    EventDto updateEvent(Integer eventId, UpdateEventRequestDto updateEventRequestDto) throws EwmException;
 
     List<EventDto> findAllUserEvents(Integer userId, Integer from, Integer size);
 
-    EventDto addEvent(Integer userId, PostEventDto postEventDto);
+    EventDto addEvent(Integer userId, PostEventDto postEventDto) throws EwmException;
 
-    EventDto findUserEvent(Integer userId, Integer eventId) throws ewmException;
+    EventDto findUserEvent(Integer userId, Integer eventId) throws EwmException;
 
-    EventDto updateUserEvent(Integer userId, Integer eventId, PatchEventDto patchEventDto) throws ewmException;
+    EventDto updateUserEvent(Integer userId, Integer eventId, UpdateEventRequestDto patchEventDto) throws EwmException;
 }

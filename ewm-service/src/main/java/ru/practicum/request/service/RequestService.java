@@ -1,20 +1,20 @@
 package ru.practicum.request.service;
 
-import ru.practicum.error.ewmException;
-import ru.practicum.request.dto.RequestChangeStatesDto;
+import ru.practicum.error.EwmException;
+import ru.practicum.request.dto.RequestUpdateStatusDto;
 import ru.practicum.request.dto.RequestDto;
-import ru.practicum.request.dto.RequestStatesDto;
+import ru.practicum.request.dto.RequestStatusDto;
 
 import java.util.List;
 
 public interface RequestService {
-    List<RequestDto> findUserRequests(Integer userId) throws ewmException;
+    List<RequestDto> findUserRequests(Integer userId) throws EwmException;
 
-    RequestDto addRequest(Integer userId, Integer eventId) throws ewmException;
+    RequestDto addRequest(Integer userId, Integer eventId) throws EwmException;
 
-    RequestDto cancelRequest(Integer userId, Integer requestId) throws ewmException;
+    RequestDto cancelRequest(Integer userId, Integer requestId) throws EwmException;
 
-    List<RequestDto> findEventRequests(Integer userId, Integer eventId) throws ewmException;
+    List<RequestDto> findEventRequests(Integer userId, Integer eventId) throws EwmException;
 
-    RequestStatesDto changeRequestStates(Integer userId, Integer eventId, RequestChangeStatesDto changeStatesDto) throws ewmException;
+    RequestStatusDto updateRequestStatus(Integer userId, Integer eventId, RequestUpdateStatusDto changeStatesDto) throws EwmException;
 }

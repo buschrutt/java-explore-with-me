@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.CompilationWithEventsDto;
 import ru.practicum.compilation.service.CompilationService;
-import ru.practicum.error.ewmException;
+import ru.practicum.error.EwmException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -27,25 +27,25 @@ public class CompilationController {
     }
 
     @GetMapping("/compilations/{compId}")
-    public CompilationWithEventsDto findCompilationById(@PathVariable Integer compId) throws ewmException {
+    public CompilationWithEventsDto findCompilationById(@PathVariable Integer compId) throws EwmException {
         return compilationService.findCompilationById(compId);
     }
 
     @PostMapping("/admin/compilations")
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationWithEventsDto addCompilation(@Valid @RequestBody CompilationDto compilationDto) throws ewmException {
+    public CompilationWithEventsDto addCompilation(@Valid @RequestBody CompilationDto compilationDto) throws EwmException {
         return compilationService.addCompilation(compilationDto);
     }
 
     @DeleteMapping("/admin/compilations/{compId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable Integer compId) throws ewmException {
+    public void deleteCompilation(@PathVariable Integer compId) throws EwmException {
         compilationService.deleteCompilation(compId);
     }
 
     @PatchMapping("/admin/compilations/{compId}")
     public CompilationWithEventsDto updateCompilation(@PathVariable Integer compId,
-                                            @RequestBody CompilationDto compilationDto) throws ewmException {
+                                            @RequestBody CompilationDto compilationDto) throws EwmException {
         return compilationService.updateCompilation(compId, compilationDto);
     }
 }
