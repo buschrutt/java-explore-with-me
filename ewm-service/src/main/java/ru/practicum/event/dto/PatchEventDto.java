@@ -6,9 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.PackagePrivate;
-import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.user.dto.UserDto;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,22 +15,15 @@ import java.time.LocalDateTime;
 @PackagePrivate
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDto {
-    Integer id;
+public class PatchEventDto {
     String annotation;
-    CategoryDto category;
-    Integer confirmedRequests;
-    LocalDateTime createdOn;
+    Integer category;
     String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    UserDto initiator;
     LocationDto location;
     Boolean paid;
     Integer participantLimit;
-    LocalDateTime publishedOn;
     Boolean requestModeration;
-    String state;
     String title;
-    Integer views;
 }

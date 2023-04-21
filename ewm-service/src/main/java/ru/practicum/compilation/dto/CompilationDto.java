@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.PackagePrivate;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -11,7 +12,10 @@ import java.util.List;
 @PackagePrivate
 public class CompilationDto {
     Integer id;
+    @NotNull
     List<Integer> events;
+    @NotNull
     Boolean pinned;
+    @NotNull
     String title;
 }

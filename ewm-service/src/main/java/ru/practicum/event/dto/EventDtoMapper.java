@@ -1,20 +1,21 @@
 package ru.practicum.event.dto;
 
+import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.model.Event;
 import ru.practicum.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
 public class EventDtoMapper {
-    public static EventDto toEventDto(Event event, Integer confirmed, UserDto initiator, LocationDto location, Integer views) {
+    public static EventDto toEventDto(Event event, Integer confirmed, UserDto initiator, LocationDto location, Integer views, CategoryDto catDto) {
         return EventDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .category(event.getCategory())
+                .category(catDto)
                 .confirmedRequests(confirmed)
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
-                .eventDate(event.getEventDate()) //event.getEventDate()
+                .eventDate(event.getEventDate())
                 .initiator(initiator)
                 .location(location)
                 .paid(event.getPaid())
@@ -27,20 +28,37 @@ public class EventDtoMapper {
                 .build();
     }
 
-    public static Event toEvent(EventDto eventDto, Integer locationId) {
+    public static Event toEvent(PostEventDto postDto, Integer locationId) {
         return Event.builder()
-                .annotation(eventDto.getAnnotation())
-                .category(eventDto.getCategory())
+                .annotation(postDto.getAnnotation())
+                .category(postDto.getCategory())
                 .createdOn(LocalDateTime.now())
-                .description(eventDto.getDescription())
-                .eventDate(eventDto.getEventDate()) //eventDto.getEventDate()
+                .description(postDto.getDescription())
+                .eventDate(postDto.getEventDate())
                 .location(locationId)
-                .paid(eventDto.getPaid())
-                .participantLimit(eventDto.getParticipantLimit())
-                .publishedOn(eventDto.getPublishedOn())
-                .requestModeration(eventDto.getRequestModeration())
-                .state(eventDto.getState())
-                .title(eventDto.getTitle())
+                .paid(postDto.getPaid())
+                .participantLimit(postDto.getParticipantLimit())
+                .publishedOn(LocalDateTime.now())
+                .requestModeration(postDto.getRequestModeration())
+                .state("PENDING")
+                .title(postDto.getTitle())
+                .build();
+    }
+
+    public static Event toEventFromPatch(PatchEventDto patchEventDto, Integer locationId) {
+        return Event.builder()
+                .annotation(patchEventDto.getAnnotation())
+                .category(patchEventDto.getCategory())
+                .createdOn(LocalDateTime.now())
+                .description(patchEventDto.getDescription())
+                .eventDate(patchEventDto.getEventDate())
+                .location(locationId)
+                .paid(patchEventDto.getPaid())
+                .participantLimit(patchEventDto.getParticipantLimit())
+                .publishedOn(LocalDateTime.now())
+                .requestModeration(patchEventDto.getRequestModeration())
+                .state("PENDING")
+                .title(patchEventDto.getTitle())
                 .build();
     }
 

@@ -32,7 +32,7 @@ public class UserController {
     // %%%%%%%%%% %%%%%%%%%% admin processing func %%%%%%%%%% %%%%%%%%%%
     @PostMapping("/admin/users")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
+    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
         return userService.addUser(userDto);
     }
 

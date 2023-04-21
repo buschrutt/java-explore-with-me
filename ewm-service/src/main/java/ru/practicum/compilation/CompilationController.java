@@ -33,7 +33,7 @@ public class CompilationController {
 
     @PostMapping("/admin/compilations")
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationWithEventsDto addCompilation(@RequestBody @Valid CompilationDto compilationDto) throws ewmException {
+    public CompilationWithEventsDto addCompilation(@Valid @RequestBody CompilationDto compilationDto) throws ewmException {
         return compilationService.addCompilation(compilationDto);
     }
 

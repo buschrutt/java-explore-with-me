@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService{
-    UserRepository userRepository;
-    EventRepository eventRepository;
-    RequestRepository requestRepository;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     public List<RequestDto> findUserRequests(Integer userId) throws ewmException {
@@ -39,14 +39,15 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public RequestDto addRequest(Integer userId, Integer eventId) throws ewmException {
-        String requestState = RequestValidation(userId, eventId);
+        String requestState = NewRequestValidation(userId, eventId);
         Request request = Request.builder()
                 .requester(userId)
                 .event(eventId)
                 .created(LocalDateTime.now())
                 .status(requestState)
                 .build();
-        return RequestDtoMapper.toRequestDto(requestRepository.save(request));
+        Request request0 = requestRepository.save(request);
+        return RequestDtoMapper.toRequestDto(request0);
     }
 
     @Override
@@ -111,6 +112,29 @@ public class RequestServiceImpl implements RequestService{
                     HttpStatus.CONFLICT));
         }
         if (event.getParticipantLimit() >= requestRepository.findRequestsByEvent(eventId).size()) {
+            throw new ewmException(new ewmExceptionModel("ParticipantLimit reached", "Integrity constraint has been violated.", "CONFLICT",
+                    HttpStatus.CONFLICT));
+        }
+        if (event.getRequestModeration()) {
+            return "PENDING";
+        } else {
+            return "CONFIRMED";
+        }
+    }
+
+    String NewRequestValidation(Integer userId, Integer eventId) throws ewmException {
+        Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                new ewmException(new ewmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
+                        HttpStatus.NOT_FOUND)));
+        if (Objects.equals(event.getInitiator(), userId)) {
+            throw new ewmException(new ewmExceptionModel("Requester same as event initiator", "Integrity constraint has been violated.", "CONFLICT",
+                    HttpStatus.CONFLICT));
+        }
+        if (requestRepository.findRequestByRequesterAndEvent(userId, eventId) != null) {
+            throw new ewmException(new ewmExceptionModel("Duplicated request", "Integrity constraint has been violated.", "CONFLICT",
+                    HttpStatus.CONFLICT));
+        }
+        if (event.getParticipantLimit() <= requestRepository.findRequestsByEvent(eventId).size()) {
             throw new ewmException(new ewmExceptionModel("ParticipantLimit reached", "Integrity constraint has been violated.", "CONFLICT",
                     HttpStatus.CONFLICT));
         }

@@ -5,11 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.error.ewmException;
 import ru.practicum.event.dto.EventDto;
+import ru.practicum.event.dto.PatchEventDto;
+import ru.practicum.event.dto.PostEventDto;
 import ru.practicum.event.model.State;
 import ru.practicum.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -52,8 +55,8 @@ public class EventController {
 
     @PatchMapping("/admin/events/{eventId}")
     public EventDto updateEvent(@PathVariable Integer eventId,
-                                @RequestBody EventDto eventDto) {
-        return eventService.updateEvent(eventId, eventDto);
+                                @RequestBody PostEventDto postEventDto) {
+        return eventService.updateEvent(eventId, postEventDto);
     }
 
     @GetMapping("/users/{userId}/events")
@@ -65,9 +68,9 @@ public class EventController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/users/{userId}/events")
-    public EventDto addEvent(@PathVariable Integer userId,
-                             @RequestBody @Valid EventDto eventDto) {
-        return eventService.addEvent(userId, eventDto);
+    public EventDto addEvent(@PathVariable @NotNull Integer userId,
+                             @RequestBody @Valid PostEventDto postEventDto) {
+        return eventService.addEvent(userId, postEventDto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
@@ -79,7 +82,7 @@ public class EventController {
     @PatchMapping("/users/{userId}/events/{eventId}")
     public EventDto updateUserEvent(@PathVariable Integer userId,
                                     @PathVariable Integer eventId,
-                                    @RequestBody @Valid EventDto eventDto) throws ewmException {
-        return eventService.updateUserEvent(userId, eventId, eventDto);
+                                    @RequestBody @Valid PatchEventDto patchEventDto) throws ewmException {
+        return eventService.updateUserEvent(userId, eventId, patchEventDto);
     }
 }

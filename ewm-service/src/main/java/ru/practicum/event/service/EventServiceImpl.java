@@ -5,14 +5,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import ru.practicum.category.dto.CategoryDto;
+import ru.practicum.category.dto.CategoryDtoMapper;
+import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.client.StatisticsClient;
 import ru.practicum.domain.HitDto;
 import ru.practicum.error.ewmException;
 import ru.practicum.error.model.ewmExceptionModel;
-import ru.practicum.event.dto.EventDto;
-import ru.practicum.event.dto.EventDtoMapper;
-import ru.practicum.event.dto.LocationDto;
-import ru.practicum.event.dto.LocationDtoMapper;
+import ru.practicum.event.dto.*;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
 import ru.practicum.event.model.State;
@@ -27,11 +27,13 @@ import ru.practicum.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
@@ -41,7 +43,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDto> findEvents(String text, List<Integer> categories, Boolean paid, String rangeStart, String rangeEnd,
                                      Boolean onlyAvailable, String sort, Integer from, Integer size, String ip) {
-        List<Event> eventList = eventRepository.findEventList(text, categories, paid, LocalDateTime.parse(rangeStart, formatter), LocalDateTime.parse(rangeEnd, formatter));
+        LocalDateTime fromTime = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
+        LocalDateTime toTime = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
+        List<Event> eventList = eventRepository.findEventList(text, categories, paid, fromTime, toTime);
         List<EventDto> eventDtoList = new ArrayList<>();
         for (Event event : eventList) {
             if (!onlyAvailable || event.getParticipantLimit() < requestRepository.findRequestsByEvent(event.getId()).size()) {
@@ -71,19 +75,16 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDto> findAllEvents(List<Integer> users, List<State> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Event> eventList = eventRepository.findEventAdminList(users, states, categories,
-                LocalDateTime.parse(rangeStart, formatter), LocalDateTime.parse(rangeEnd, formatter), pageable);
-        List<EventDto> eventDtoList = new ArrayList<>();
-        for (Event event : eventList) {
-            eventDtoList.add(getEventDtoFunc(event));
-        }
-        return eventDtoList;
+        LocalDateTime fromTime = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
+        LocalDateTime toTime = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
+        List<Event> eventList = eventRepository.findEventAdminList(users, states, categories, fromTime, toTime, pageable);
+        return eventList.stream().map(this::getEventDtoFunc).collect(Collectors.toList());
     }
 
     @Override
-    public EventDto updateEvent(Integer eventId, EventDto eventDto) {
+    public EventDto updateEvent(Integer eventId, PostEventDto postEventDto) {
         Event event = eventRepository.findById(eventId).orElseThrow();
-        return convertEventToUpdatedDto(event, eventDto);
+        return convertEventToUpdatedDto(event, postEventDto);
     }
 
     @Override
@@ -97,9 +98,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto addEvent(Integer userId, EventDto eventDto) {
-        Integer locationId = getLocationId(eventDto);
-        Event event = EventDtoMapper.toEvent(eventDto, locationId);
+    public EventDto addEvent(Integer userId, PostEventDto postEventDto) {
+        Event event = EventDtoMapper.toEvent(postEventDto, getLocationId(postEventDto));
         event.setInitiator(userId);
         return getEventDtoFunc(eventRepository.save(event));
     }
@@ -115,26 +115,34 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto updateUserEvent(Integer userId, Integer eventId, EventDto eventDto) throws ewmException {
+    public EventDto updateUserEvent(Integer userId, Integer eventId, PatchEventDto patchEventDto) throws ewmException {
         Event event = eventRepository.findEventByIdAndInitiator(eventId, userId);
         if (event == null) {
             throw new ewmException(new ewmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
                     HttpStatus.NOT_FOUND));
         }
-        return convertEventToUpdatedDto(event, eventDto);
+        return convertEventToUpdatedDtoPatch(event, patchEventDto);
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
     EventDto  getEventDtoFunc(Event event) {
         UserDto initiatorDto = UserDtoMapper.toUserDto(userRepository.findById(event.getInitiator()).orElseThrow());
         LocationDto locationDto = LocationDtoMapper.toLocationDto(locationRepository.findById(event.getLocation()).orElseThrow());
+        CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
         Integer confirmed = requestRepository.findRequestByStatus(RequestState.CONFIRMED.toString()).size();
         Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), List.of("/events/" + event.getId()), true).size();
-        return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views);
+        return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
     }
 
-    EventDto convertEventToUpdatedDto(Event event, EventDto eventDto) {
-        Event eventWUpdate = EventDtoMapper.toEvent(eventDto, getLocationId(eventDto));
+    EventDto convertEventToUpdatedDto(Event event, PostEventDto postEventDto) {
+        Event eventWUpdate = EventDtoMapper.toEvent(postEventDto, null);
+        eventWUpdate.setCreatedOn(null);
+        return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
+    }
+
+    EventDto convertEventToUpdatedDtoPatch(Event event, PatchEventDto patchEventDto) {
+        Event eventWUpdate = EventDtoMapper.toEventFromPatch(patchEventDto, null);
+        eventWUpdate.setCreatedOn(null);
         return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
     }
 
@@ -172,11 +180,11 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    Integer getLocationId(EventDto eventDto) {
+    Integer getLocationId(PostEventDto postEventDto) {
         Integer locationId;
-        Location location = locationRepository.findLocationByLatAndLon(eventDto.getLocation().getLat(), eventDto.getLocation().getLon());
+        Location location = locationRepository.findLocationByLatAndLon(postEventDto.getLocation().getLat(), postEventDto.getLocation().getLon());
         if (location == null) {
-            location = locationRepository.save(Location.builder().lat(eventDto.getLocation().getLat()).lon(eventDto.getLocation().getLon()).build());
+            location = locationRepository.save(Location.builder().lat(postEventDto.getLocation().getLat()).lon(postEventDto.getLocation().getLon()).build());
         }
         locationId = location.getId();
         return locationId;

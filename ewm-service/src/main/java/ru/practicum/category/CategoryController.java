@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.service.CategoryService;
+import ru.practicum.error.ewmException;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -22,12 +24,12 @@ public class CategoryController {
 
     @PostMapping("/admin/categories")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public CategoryDto createNewCategory(@RequestBody CategoryDto categoryDto) {
+    public CategoryDto addCategory(@Valid @RequestBody CategoryDto categoryDto) throws ewmException {
         return categoryService.addCategory(categoryDto);
     }
 
     @PatchMapping("/admin/categories/{catId}")
-    public CategoryDto changeCategory(@PathVariable Integer catId, @RequestBody CategoryDto categoryDto) {
+    public CategoryDto changeCategory(@PathVariable Integer catId, @RequestBody CategoryDto categoryDto) throws ewmException {
         return categoryService.updateCategory(catId, categoryDto);
     }
 

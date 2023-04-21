@@ -8,14 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class RequestDtoMapper {
-    public static Request toRequest(Integer userId, Integer eventId) {
-        return Request.builder()
-                .requester(userId)
-                .event(eventId)
-                .created(LocalDateTime.now())
-                .status(String.valueOf(RequestState.PENDING))
-                .build();
-    }
 
     public static RequestDto toRequestDto(Request request) {
         return RequestDto.builder()
@@ -37,7 +29,7 @@ public class RequestDtoMapper {
     public static RequestStatesDto toRequestStatesDto(List<RequestDto> confirmedRequestDtoList, List<RequestDto> rejectedRequestDtoList) {
         return RequestStatesDto.builder()
                 .confirmedRequestsDto(confirmedRequestDtoList)
-                .confirmedRequestsDto(rejectedRequestDtoList)
+                .rejectedRequestsDto(rejectedRequestDtoList)
                 .build();
     }
 

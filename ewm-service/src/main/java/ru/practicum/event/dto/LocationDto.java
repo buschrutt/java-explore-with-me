@@ -8,7 +8,6 @@ import lombok.experimental.PackagePrivate;
 @Builder
 @PackagePrivate
 public class LocationDto {
-    Integer id;
     Float lat;
     Float lon;
 }

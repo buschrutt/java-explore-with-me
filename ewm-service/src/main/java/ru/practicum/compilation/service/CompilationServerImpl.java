@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class CompilationServerImpl implements CompilationService {
-    CompilationRepository compilationRepository;
-    CompilationEventRepository compilationEventRepository;
-    EventRepository eventRepository;
+    private final CompilationRepository compilationRepository;
+    private final CompilationEventRepository compilationEventRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public List<CompilationWithEventsDto> findCompilations(Boolean pinned, Integer from, Integer size) {
