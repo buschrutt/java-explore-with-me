@@ -80,17 +80,28 @@ public class CompilationServerImpl implements CompilationService {
 
     @Override
     public CompilationWithEventsDto updateCompilation(Integer compId, CompilationDto compilationDto) throws EwmException {
-        compilationRepository.findById(compId).orElseThrow(() ->
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
                 new EwmException(new EwmExceptionModel("Compilation with id:" + compId + " was not found", "The required object was not found.", "NOT_FOUND",
                         HttpStatus.NOT_FOUND)));
         List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
-        Compilation compilation = CompilationDtoMapper.toCompilation(compilationDto);
-        compilation.setId(compId);
-        compilation = compilationRepository.save(compilation);
+        Compilation newCompilation = CompilationDtoMapper.toCompilation(compilationDto);
+        compilation = updateCompilationWithNotNullFields(compilation, newCompilation);
+        compilationRepository.save(compilation);
         for (Event event : events) {
-            CompilationEvent compilationEvent = CompilationEvent.builder().eventId(event.getId()).compilationId(compilation.getId()).build();
+            CompilationEvent compilationEvent = CompilationEvent.builder().eventId(event.getId()).compilationId(compId).build();
             compilationEventRepository.save(compilationEvent);
         }
         return CompilationDtoMapper.toCompilationWithEventsDto(compilation, events);
+    }
+
+    // %%%%%%%%%% %%%%%%%%%% SUPPORTING
+    Compilation updateCompilationWithNotNullFields(Compilation compilation, Compilation newCompilation) {
+        if (newCompilation.getPinned() != null) {
+            compilation.setPinned(newCompilation.getPinned());
+        }
+        if (newCompilation.getTitle() != null) {
+            compilation.setTitle(newCompilation.getTitle());
+        }
+        return compilation;
     }
 }

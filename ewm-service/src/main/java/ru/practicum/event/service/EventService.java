@@ -11,9 +11,9 @@ import java.util.List;
 public interface EventService {
     List<EventDto> findEvents(String text, List<Integer> categories, Boolean paid, String rangeStart, String rangeEnd,Boolean onlyAvailable, String sort, Integer from, Integer size, String ip);
 
-    EventDto getEventById(Integer id, String ip);
+    EventDto findEventById(Integer id, String ip);
 
-    List<EventDto> findAllEvents(List<Integer> users, List<EventState> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
+    List<EventDto> findAllEvents(List<Integer> users, List<String> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
 
     EventDto updateEvent(Integer eventId, UpdateEventRequestDto updateEventRequestDto) throws EwmException;
 

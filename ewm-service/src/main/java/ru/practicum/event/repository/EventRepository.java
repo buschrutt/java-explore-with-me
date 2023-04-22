@@ -26,7 +26,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
             "AND (e.eventDate >= COALESCE(:rangeStart, e.eventDate)) " +
             "AND (e.eventDate <= COALESCE(:rangeEnd, e.eventDate)) " +
             "ORDER BY e.eventDate DESC")
-    List<Event> findEventAdminList(List<Integer> users, List<EventState> states, List<Integer> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
+    List<Event> findEventAdminList(List<Integer> users, List<String> states, List<Integer> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 
     List<Event> findAllByInitiator(Integer user, Pageable pageable);
 

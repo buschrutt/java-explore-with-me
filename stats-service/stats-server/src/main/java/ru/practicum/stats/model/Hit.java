@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Table(name = "stats")
-@Data
-@ToString
+@Getter
+@Setter
 @PackagePrivate
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,16 +22,12 @@ public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
-
     @Column(name = "app")
     String app;
-
     @Column(name = "uri")
     String uri;
-
     @Column(name = "ip")
     String ip;
-
     @Column(name = "view_date")
     LocalDateTime viewDate;
 }

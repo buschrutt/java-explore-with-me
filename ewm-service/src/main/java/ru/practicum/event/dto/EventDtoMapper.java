@@ -39,6 +39,7 @@ public class EventDtoMapper {
                 .location(locationId)
                 .paid(postDto.getPaid())
                 .participantLimit(postDto.getParticipantLimit())
+                .state("PENDING")
                 .requestModeration(postDto.getRequestModeration())
                 .title(postDto.getTitle())
                 .build();
@@ -48,7 +49,7 @@ public class EventDtoMapper {
         String state = "PENDING";
         if (Objects.equals(patchEventDto.getStateAction(), "PUBLISH_EVENT")) {
             state = "PUBLISHED";
-        } else if (Objects.equals(patchEventDto.getStateAction(), "REJECT_EVENT")) {
+        } else if (Objects.equals(patchEventDto.getStateAction(), "REJECT_EVENT") || Objects.equals(patchEventDto.getStateAction(), "CANCEL_REVIEW")) {
             state = "CANCELED";
         }
         return Event.builder()

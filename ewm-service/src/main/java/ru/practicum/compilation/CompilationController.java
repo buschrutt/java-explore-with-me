@@ -45,7 +45,7 @@ public class CompilationController {
 
     @PatchMapping("/admin/compilations/{compId}")
     public CompilationWithEventsDto updateCompilation(@PathVariable Integer compId,
-                                            @RequestBody CompilationDto compilationDto) throws EwmException {
+                                                      @RequestBody CompilationDto compilationDto) throws EwmException {
         return compilationService.updateCompilation(compId, compilationDto);
     }
 }

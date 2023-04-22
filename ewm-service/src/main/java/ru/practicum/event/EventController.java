@@ -38,13 +38,13 @@ public class EventController {
     }
 
     @GetMapping("/events/{id}")
-    public EventDto getEventById(@PathVariable Integer id) {
-        return eventService.getEventById(id, request.getRemoteAddr());
+    public EventDto findEventById(@PathVariable Integer id) {
+        return eventService.findEventById(id, request.getRemoteAddr());
     }
 
     @GetMapping("/admin/events")
     public List<EventDto> findAllEvents(@RequestParam(value = "users", required = false) List<Integer> users,
-                                        @RequestParam(value = "states", required = false) List<EventState> states,
+                                        @RequestParam(value = "states", required = false) List<String> states,
                                         @RequestParam(value = "categories", required = false) List<Integer> categories,
                                         @RequestParam(value = "rangeStart", required = false) String rangeStart,
                                         @RequestParam(value = "rangeEnd", required = false) String rangeEnd,

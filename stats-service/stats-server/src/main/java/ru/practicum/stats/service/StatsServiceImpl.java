@@ -13,8 +13,8 @@ import ru.practicum.stats.model.Stats;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,23 +24,12 @@ public class StatsServiceImpl implements StatsService {
     private final StatsRepository statsRepository;
 
     @Override
-    public List<StatsDto> getFrameStats(String start, String end, List<String> uris, Boolean isUnique) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        List<Stats> statsList;
-        if (uris == null && (isUnique == null || !isUnique)) {
-            statsList = statsRepository.findAllStatsList(LocalDateTime.parse(start, formatter), LocalDateTime.parse(end, formatter));
-        } else if (uris == null) {
-            statsList = statsRepository.findAllStatsListUniqueIp(LocalDateTime.parse(start, formatter), LocalDateTime.parse(end, formatter));
-        } else if (isUnique == null || !isUnique) {
-            statsList = statsRepository.findStatsList(uris, LocalDateTime.parse(start, formatter), LocalDateTime.parse(end, formatter));
-        } else {
-            statsList = statsRepository.findStatsListUniqueIp(uris, LocalDateTime.parse(start, formatter), LocalDateTime.parse(end, formatter));
-        }
-        List<StatsDto> statsDtoList = new ArrayList<>();
-        for (Stats stats : statsList) {
-            statsDtoList.add(StatsDtoMapper.statsToStatsDto(stats));
-        }
-        return statsDtoList;
+    public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean isUnique) {
+        List<Stats> statsList = (uris == null) ? (isUnique ? statsRepository.findAllStatsListUniqueIp(start, end)
+                : statsRepository.findAllStatsList(start, end))
+                : (isUnique ? statsRepository.findStatsListUniqueIp(uris, start, end)
+                : statsRepository.findStatsList(uris, start, end));
+        return statsList.stream().map(StatsDtoMapper::statsToStatsDto).collect(Collectors.toList());
     }
 
     @Override

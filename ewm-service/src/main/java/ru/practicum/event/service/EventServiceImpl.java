@@ -17,7 +17,6 @@ import ru.practicum.event.dto.EventDtoMapper;
 import ru.practicum.event.dto.LocationDtoMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
-import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.repository.LocationRepository;
 import ru.practicum.request.model.RequestStatuses;
@@ -50,8 +49,10 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList = eventRepository.findEventList(text, categories, paid, fromTime, toTime);
         List<EventDto> eventDtoList = new ArrayList<>();
         for (Event event : eventList) {
+            statsClient.postHit(HitDto.builder().app("evm-service").uri("/events/" + event.getId()).ip(ip).timestamp(LocalDateTime.now().format(formatter)).build());
             if (!onlyAvailable || event.getParticipantLimit() < requestRepository.findRequestsByEvent(event.getId()).size()) {
-                eventDtoList.add(getEventDtoFunc(event));
+                EventDto e = getEventDtoFunc(event);
+                eventDtoList.add(e);
             }
         }
         if (Objects.equals(sort, "VIEWS")){
@@ -67,15 +68,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto getEventById(Integer id, String ip) {
+    public EventDto findEventById(Integer id, String ip) {
         Event event = eventRepository.findById(id).orElseThrow();
         statsClient.postHit(HitDto.builder().app("evm-service").uri("/events/" + id).ip(ip).timestamp(LocalDateTime.now().format(formatter)).build());
         // %%%%% %%%%% %%%%%
-        return getEventDtoFunc(event);
+        return getEventDtoFunc0(event);
     }
 
     @Override
-    public List<EventDto> findAllEvents(List<Integer> users, List<EventState> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
+    public List<EventDto> findAllEvents(List<Integer> users, List<String> states, List<Integer> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         LocalDateTime fromTime = rangeStart != null ? LocalDateTime.parse(rangeStart, formatter) : null;
         LocalDateTime toTime = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
@@ -126,12 +127,23 @@ public class EventServiceImpl implements EventService {
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
-    EventDto  getEventDtoFunc(Event event) {
+    EventDto getEventDtoFunc(Event event) {
         UserShortDto initiatorDto = UserDtoMapper.toUserShortDto(userRepository.findById(event.getInitiator()).orElseThrow());
         LocationDto locationDto = LocationDtoMapper.toLocationDto(locationRepository.findById(event.getLocation()).orElseThrow());
         CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
         Integer confirmed = requestRepository.findRequestByStatus(RequestStatuses.CONFIRMED.toString()).size();
         Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), List.of("/events/" + event.getId()), true).size();
+        return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
+    }
+
+    EventDto  getEventDtoFunc0(Event event) {
+        UserShortDto initiatorDto = UserDtoMapper.toUserShortDto(userRepository.findById(event.getInitiator()).orElseThrow());
+        LocationDto locationDto = LocationDtoMapper.toLocationDto(locationRepository.findById(event.getLocation()).orElseThrow());
+        CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
+        Integer confirmed = requestRepository.findRequestByStatus(RequestStatuses.CONFIRMED.toString()).size();
+        List<String> uris = new ArrayList<>();
+        uris.add("/events/" + event.getId());
+        Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), uris, true).size();
         return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
     }
 
@@ -144,7 +156,7 @@ public class EventServiceImpl implements EventService {
     EventDto convertEventToUpdatedDtoPatch(Event event, UpdateEventRequestDto patchEventDto) {
         Event eventWUpdate = EventDtoMapper.toEventFromPatch(patchEventDto, null);
         eventWUpdate.setCreatedOn(null);
-        return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
+        return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields(event, eventWUpdate)));
     }
 
     Event updateEventWithNotNullFields(Event event, Event eventWUpdate) {

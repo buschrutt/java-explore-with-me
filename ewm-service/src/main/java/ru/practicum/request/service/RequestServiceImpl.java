@@ -78,7 +78,7 @@ public class RequestServiceImpl implements RequestService{
         for (Integer requestId : RequestIds) {
             Request request = requestRepository.findById(requestId).orElseThrow();
             UpdateRequestValidation(eventId, updateStatusDto, event, request);
-            if (Objects.equals(NewStatus, "CONFIRMED")) {
+            if (Objects.equals(NewStatus, "CONFIRMED") && event.getParticipantLimit() != 0) {
                 CheckIfLimitReached(event, eventId);
             }
             request.setStatus(NewStatus);
@@ -105,7 +105,7 @@ public class RequestServiceImpl implements RequestService{
             throw new EwmException(new EwmExceptionModel("Duplicated request", "Integrity constraint has been violated.", "CONFLICT",
                     HttpStatus.CONFLICT));
         }
-        if (event.getParticipantLimit() <= requestRepository.findRequestsByEvent(eventId).size()) {
+        if (!event.getRequestModeration() && event.getParticipantLimit() <= requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size()) {
             throw new EwmException(new EwmExceptionModel("ParticipantLimit reached0", "Integrity constraint has been violated.", "CONFLICT",
                     HttpStatus.CONFLICT));
         }
@@ -119,9 +119,9 @@ public class RequestServiceImpl implements RequestService{
     void UpdateRequestValidation(Integer eventId, RequestUpdateStatusDto updateStatusDto, Event event, Request request) throws EwmException {
         if (!Objects.equals(request.getStatus(), "PENDING")) {
             throw new EwmException(new EwmExceptionModel("Request status is not PENDING", "Integrity constraint has been violated.", "CONFLICT",
-                    HttpStatus.NOT_FOUND));
+                    HttpStatus.CONFLICT));
         }
-        if (event.getParticipantLimit() <= requestRepository.findRequestsByEvent(eventId).size()) {
+        if (event.getParticipantLimit() <= requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size()) {
             throw new EwmException(new EwmExceptionModel("ParticipantLimit reached1", "Integrity constraint has been violated.", "CONFLICT",
                     HttpStatus.CONFLICT));
         }
@@ -132,10 +132,9 @@ public class RequestServiceImpl implements RequestService{
     }
 
     void CheckIfLimitReached(Event event, Integer eventId) throws EwmException {
-        if (event.getParticipantLimit() == 0) {
-            return;
-        }
-        if (event.getParticipantLimit() == requestRepository.findRequestsByEvent(eventId).size()) {
+        System.out.println("a= " + requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size());
+        System.out.println("b= " + event.getParticipantLimit());
+        if (event.getParticipantLimit() <= requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size()) {
             for (Request request : requestRepository.findRequestsByEventAndStatus(eventId, "PENDING")) {
                 request.setStatus("REJECTED");
                 requestRepository.save(request);
