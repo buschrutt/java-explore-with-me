@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
-import ru.practicum.category.dto.CategoryDtoMapper;
 import ru.practicum.error.EwmException;
 import ru.practicum.error.model.EwmExceptionModel;
 import ru.practicum.user.dto.UserDto;

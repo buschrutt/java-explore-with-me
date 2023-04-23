@@ -4,7 +4,6 @@ import ru.practicum.error.EwmException;
 import ru.practicum.event.dto.EventDto;
 import ru.practicum.event.dto.UpdateEventRequestDto;
 import ru.practicum.event.dto.PostEventDto;
-import ru.practicum.event.model.enums.EventState;
 
 import java.util.List;
 

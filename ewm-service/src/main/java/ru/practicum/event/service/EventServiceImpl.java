@@ -56,7 +56,7 @@ public class EventServiceImpl implements EventService {
                 eventDtoList.add(e);
             }
         }
-        if (Objects.equals(sort, "VIEWS")){
+        if (Objects.equals(sort, "VIEWS")) {
             eventDtoList.sort(Comparator.comparing(EventDto::getViews));
         }
         if (eventDtoList.size() > from) {
@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto updateEvent(Integer eventId, UpdateEventRequestDto requestDto) throws EwmException {
         Event event = eventRepository.findById(eventId).orElseThrow();
-        ValidateUpdateEventDto(requestDto, event);
+        validateUpdateEventDto(requestDto, event);
         return convertEventToUpdatedDto(event, requestDto);
     }
 
@@ -105,7 +105,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto addEvent(Integer userId, PostEventDto postEventDto) throws EwmException {
         Event event = EventDtoMapper.toEvent(postEventDto, getLocationId(postEventDto));
-        ValidateAddEventDto(postEventDto);
+        validateAddEventDto(postEventDto);
         event.setInitiator(userId);
         return getEventDtoFunc(eventRepository.save(event));
     }
@@ -151,7 +151,7 @@ public class EventServiceImpl implements EventService {
     EventDto convertEventToUpdatedDto(Event event, UpdateEventRequestDto requestDto) {
         Event eventWUpdate = EventDtoMapper.toEventFromPatch(requestDto, null);
         eventWUpdate.setCreatedOn(null);
-        return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields (event, eventWUpdate)));
+        return getEventDtoFunc(eventRepository.save(updateEventWithNotNullFields(event, eventWUpdate)));
     }
 
     EventDto convertEventToUpdatedDtoPatch(Event event, UpdateEventRequestDto patchEventDto) {
@@ -204,7 +204,7 @@ public class EventServiceImpl implements EventService {
         return locationId;
     }
 
-    void ValidateUpdateEventDto(UpdateEventRequestDto requestDto, Event event) throws EwmException {
+    void validateUpdateEventDto(UpdateEventRequestDto requestDto, Event event) throws EwmException {
         if (requestDto.getEventDate() != null && requestDto.getEventDate().isBefore(LocalDateTime.now())) {
             throw new EwmException(new EwmExceptionModel("New Event date isBefore now", "Data Integrity Violation.", "CONFLICT", // 409
                     HttpStatus.CONFLICT));
@@ -223,7 +223,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    void ValidateAddEventDto(PostEventDto postEventDto) throws EwmException {
+    void validateAddEventDto(PostEventDto postEventDto) throws EwmException {
         if (postEventDto.getEventDate().isBefore(LocalDateTime.now())) {
             throw new EwmException(new EwmExceptionModel("New Event date isBefore now + 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
                     HttpStatus.CONFLICT));

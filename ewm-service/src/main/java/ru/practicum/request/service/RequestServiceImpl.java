@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class RequestServiceImpl implements RequestService{
+public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
@@ -42,7 +42,7 @@ public class RequestServiceImpl implements RequestService{
             throw new EwmException(new EwmExceptionModel("The event was not PUBLISHED", "The required object was not found.", "CONFLICT",
                     HttpStatus.CONFLICT));
         }
-        String requestState = NewRequestValidation(userId, eventId);
+        String requestState = newRequestValidation(userId, eventId);
         Request request = Request.builder()
                 .requester(userId)
                 .event(eventId)
@@ -72,20 +72,20 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public RequestStatusDto updateRequestStatus(Integer userId, Integer eventId, RequestUpdateStatusDto updateStatusDto) throws EwmException {
-        List<Integer> RequestIds = updateStatusDto.getRequestIds();
-        String NewStatus = updateStatusDto.getStatus();
+        List<Integer> requestIds = updateStatusDto.getRequestIds();
+        String newStatus = updateStatusDto.getStatus();
         Event event = eventRepository.findById(eventId).orElseThrow();
-        for (Integer requestId : RequestIds) {
+        for (Integer requestId : requestIds) {
             Request request = requestRepository.findById(requestId).orElseThrow();
-            UpdateRequestValidation(eventId, updateStatusDto, event, request);
-            if (Objects.equals(NewStatus, "CONFIRMED") && event.getParticipantLimit() != 0) {
-                CheckIfLimitReached(event, eventId);
+            updateRequestValidation(eventId, updateStatusDto, event, request);
+            if (Objects.equals(newStatus, "CONFIRMED") && event.getParticipantLimit() != 0) {
+                checkIfLimitReached(event, eventId);
             }
-            request.setStatus(NewStatus);
+            request.setStatus(newStatus);
             requestRepository.save(request);
         }
-        List<Request> confirmedRequests = requestRepository.findRequestsByStatusAndIdIn("CONFIRMED", RequestIds);
-        List<Request> rejectedRequests = requestRepository.findRequestsByStatusAndIdIn("REJECTED", RequestIds);
+        List<Request> confirmedRequests = requestRepository.findRequestsByStatusAndIdIn("CONFIRMED", requestIds);
+        List<Request> rejectedRequests = requestRepository.findRequestsByStatusAndIdIn("REJECTED", requestIds);
         return RequestDtoMapper.toRequestStatesDto(
                 confirmedRequests.stream().map(RequestDtoMapper::toRequestDto).collect(Collectors.toList()),
                 rejectedRequests.stream().map(RequestDtoMapper::toRequestDto).collect(Collectors.toList())
@@ -93,7 +93,7 @@ public class RequestServiceImpl implements RequestService{
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
-    String NewRequestValidation(Integer userId, Integer eventId) throws EwmException {
+    String newRequestValidation(Integer userId, Integer eventId) throws EwmException {
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new EwmException(new EwmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
                         HttpStatus.NOT_FOUND)));
@@ -116,7 +116,7 @@ public class RequestServiceImpl implements RequestService{
         }
     }
 
-    void UpdateRequestValidation(Integer eventId, RequestUpdateStatusDto updateStatusDto, Event event, Request request) throws EwmException {
+    void updateRequestValidation(Integer eventId, RequestUpdateStatusDto updateStatusDto, Event event, Request request) throws EwmException {
         if (!Objects.equals(request.getStatus(), "PENDING")) {
             throw new EwmException(new EwmExceptionModel("Request status is not PENDING", "Integrity constraint has been violated.", "CONFLICT",
                     HttpStatus.CONFLICT));
@@ -131,7 +131,7 @@ public class RequestServiceImpl implements RequestService{
         }
     }
 
-    void CheckIfLimitReached(Event event, Integer eventId) throws EwmException {
+    void checkIfLimitReached(Event event, Integer eventId) throws EwmException {
         if (event.getParticipantLimit() <= requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size()) {
             for (Request request : requestRepository.findRequestsByEventAndStatus(eventId, "PENDING")) {
                 request.setStatus("REJECTED");
