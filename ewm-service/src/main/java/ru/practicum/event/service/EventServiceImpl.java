@@ -123,7 +123,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto updateUserEvent(Integer userId, Integer eventId, UpdateEventRequestDto patchEventDto) throws EwmException {
         Event event = eventRepository.findEventByIdAndInitiator(eventId, userId);
-        ValidateUpdateUseEventDto(patchEventDto, event);
+        validateUpdateUseEventDto(patchEventDto, event);
         return convertEventToUpdatedDtoPatch(event, patchEventDto);
     }
 
@@ -230,7 +230,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    void ValidateUpdateUseEventDto(UpdateEventRequestDto patchEventDto, Event event) throws EwmException {
+    void validateUpdateUseEventDto(UpdateEventRequestDto patchEventDto, Event event) throws EwmException {
         if (patchEventDto.getEventDate() != null && patchEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new EwmException(new EwmExceptionModel("New Event date isBefore now = 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
                     HttpStatus.CONFLICT));
