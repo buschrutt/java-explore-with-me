@@ -48,6 +48,7 @@ public class EventServiceImpl implements EventService {
         LocalDateTime toTime = rangeEnd != null ? LocalDateTime.parse(rangeEnd, formatter) : null;
         List<Event> eventList = eventRepository.findEventList(text, categories, paid, fromTime, toTime);
         List<EventDto> eventDtoList = new ArrayList<>();
+        statsClient.postHit(HitDto.builder().app("evm-service").uri("/events").ip(ip).timestamp(LocalDateTime.now().format(formatter)).build());
         for (Event event : eventList) {
             statsClient.postHit(HitDto.builder().app("evm-service").uri("/events/" + event.getId()).ip(ip).timestamp(LocalDateTime.now().format(formatter)).build());
             if (!onlyAvailable || event.getParticipantLimit() < requestRepository.findRequestsByEvent(event.getId()).size()) {
@@ -223,8 +224,8 @@ public class EventServiceImpl implements EventService {
     }
 
     void ValidateAddEventDto(PostEventDto postEventDto) throws EwmException {
-        if (postEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new EwmException(new EwmExceptionModel("New Event date isBefore now = 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
+        if (postEventDto.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new EwmException(new EwmExceptionModel("New Event date isBefore now + 1 hr", "Data Integrity Violation.", "CONFLICT", // 409
                     HttpStatus.CONFLICT));
         }
     }

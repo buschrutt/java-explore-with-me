@@ -12,6 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stats-server-db
       - POSTGRES_USER=db_user
       - POSTGRES_PASSWORD=multipass
+      #- TZ=America/Chicago # Set timezone to CST
 
   db:
     image: postgres:14.4-alpine
@@ -35,6 +36,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-ewm:5432/ewm-service-db
       - POSTGRES_USER=db_user
       - POSTGRES_PASSWORD=multipass
+      #- TZ=America/Chicago # Set timezone to CST
 
   db-ewm:
     image: postgres:14.4-alpine

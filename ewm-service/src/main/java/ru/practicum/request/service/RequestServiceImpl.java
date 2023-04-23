@@ -132,8 +132,6 @@ public class RequestServiceImpl implements RequestService{
     }
 
     void CheckIfLimitReached(Event event, Integer eventId) throws EwmException {
-        System.out.println("a= " + requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size());
-        System.out.println("b= " + event.getParticipantLimit());
         if (event.getParticipantLimit() <= requestRepository.findRequestsByEventAndStatus(eventId, "CONFIRMED").size()) {
             for (Request request : requestRepository.findRequestsByEventAndStatus(eventId, "PENDING")) {
                 request.setStatus("REJECTED");
