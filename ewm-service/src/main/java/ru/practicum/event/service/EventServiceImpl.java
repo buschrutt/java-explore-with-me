@@ -73,7 +73,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(id).orElseThrow();
         statsClient.postHit(HitDto.builder().app("evm-service").uri("/events/" + id).ip(ip).timestamp(LocalDateTime.now().format(formatter)).build());
         // %%%%% %%%%% %%%%%
-        return getEventDtoFunc0(event);
+        return getEventDtoFunc(event);
     }
 
     @Override
@@ -134,17 +134,6 @@ public class EventServiceImpl implements EventService {
         CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
         Integer confirmed = requestRepository.findRequestByStatus(RequestStatuses.CONFIRMED.toString()).size();
         Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), List.of("/events/" + event.getId()), true).size();
-        return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
-    }
-
-    EventDto  getEventDtoFunc0(Event event) {
-        UserShortDto initiatorDto = UserDtoMapper.toUserShortDto(userRepository.findById(event.getInitiator()).orElseThrow());
-        LocationDto locationDto = LocationDtoMapper.toLocationDto(locationRepository.findById(event.getLocation()).orElseThrow());
-        CategoryDto catDto = CategoryDtoMapper.toCategoryDto(categoryRepository.findById(event.getCategory()).orElseThrow());
-        Integer confirmed = requestRepository.findRequestByStatus(RequestStatuses.CONFIRMED.toString()).size();
-        List<String> uris = new ArrayList<>();
-        uris.add("/events/" + event.getId());
-        Integer views = statsClient.getStats(event.getCreatedOn().format(formatter), LocalDateTime.now().format(formatter), uris, true).size();
         return EventDtoMapper.toEventDto(event, confirmed, initiatorDto, locationDto, views, catDto);
     }
 

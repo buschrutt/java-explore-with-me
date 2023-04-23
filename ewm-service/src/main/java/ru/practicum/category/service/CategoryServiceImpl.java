@@ -26,27 +26,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto addCategory(CategoryDto categoryDto) throws EwmException {
+    public CategoryDto addCategory(CategoryDto categoryDto) {
         Category category = CategoryDtoMapper.toCategory(categoryDto);
-        try {
-            return CategoryDtoMapper.toCategoryDto(categoryRepository.save(category));
-        } catch (DataIntegrityViolationException e) {
-            throw new EwmException(new EwmExceptionModel(e.getMessage(), "Data Integrity Violation.", "CONFLICT", // 409
-                    HttpStatus.CONFLICT));
-        }
+        return CategoryDtoMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
-    public CategoryDto updateCategory(Integer catId, CategoryDto categoryDto) throws EwmException {
+    public CategoryDto updateCategory(Integer catId, CategoryDto categoryDto) {
         Category category = CategoryDtoMapper.toCategory(categoryDto);
         Category newCategory = categoryRepository.findById(catId).orElseThrow();
         newCategory.setName(category.getName());
-        try {
-            return CategoryDtoMapper.toCategoryDto(categoryRepository.save(newCategory));
-        } catch (DataIntegrityViolationException e) {
-            throw new EwmException(new EwmExceptionModel(e.getMessage(), "Data Integrity Violation.", "CONFLICT", // 409
-                    HttpStatus.CONFLICT));
-        }
+        return CategoryDtoMapper.toCategoryDto(categoryRepository.save(newCategory));
     }
 
     @Override

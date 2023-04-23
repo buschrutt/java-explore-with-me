@@ -67,5 +67,4 @@ public class EventDtoMapper {
                 .title(patchEventDto.getTitle())
                 .build();
     }
-
 }

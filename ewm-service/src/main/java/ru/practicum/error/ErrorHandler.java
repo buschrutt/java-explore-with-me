@@ -1,5 +1,6 @@
 package ru.practicum.error;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -48,6 +49,17 @@ public class ErrorHandler {
                 "timestamp", LocalDateTime.now().toString()
         );
         return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationExceptions(DataIntegrityViolationException e) {
+        Map<String, String> errorMap = Map.of(
+                "status", "CONFLICT",
+                "reason", "Data Integrity Violation.",
+                "message", Objects.requireNonNull(e.getMessage()),
+                "timestamp", LocalDateTime.now().toString()
+        );
+        return new ResponseEntity<>(errorMap, HttpStatus.CONFLICT);
     }
 
 }
