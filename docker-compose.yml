@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   stats-server:
-    build: ./stats-server
+    build: ./stats-service/stats-server
     image: stats-server-image
     container_name: stats-server-container
     ports:
@@ -12,6 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stats-server-db
       - POSTGRES_USER=db_user
       - POSTGRES_PASSWORD=multipass
+      #- TZ=America/Chicago # Set timezone to CST
 
   db:
     image: postgres:14.4-alpine
@@ -20,5 +21,29 @@ services:
       - "6431:5432"
     environment:
       - POSTGRES_DB=stats-server-db
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=multipass
+
+  ewm-service:
+    build: ./ewm-service
+    image: ewm-service-image
+    container_name: ewm-service-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db-ewm
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-ewm:5432/ewm-service-db
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=multipass
+      #- TZ=America/Chicago # Set timezone to CST
+
+  db-ewm:
+    image: postgres:14.4-alpine
+    container_name: ewm-service-db-container
+    ports:
+      - "6432:5432"
+    environment:
+      - POSTGRES_DB=ewm-service-db
       - POSTGRES_USER=db_user
       - POSTGRES_PASSWORD=multipass
