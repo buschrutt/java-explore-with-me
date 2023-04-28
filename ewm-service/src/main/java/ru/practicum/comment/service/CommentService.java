@@ -9,7 +9,7 @@ import java.util.List;
 public interface CommentService {
     CommentWithNamesDto findCommentById(Integer commentId) throws EwmException;
 
-    List<CommentWithNamesDto> findCommentsByEventId(Integer eventId, Integer from, Integer size);
+    List<CommentWithNamesDto> findCommentsByEventId(Integer eventId, Integer from, Integer size) throws EwmException;
 
     CommentDto addComment(CommentDto commentDto);
 

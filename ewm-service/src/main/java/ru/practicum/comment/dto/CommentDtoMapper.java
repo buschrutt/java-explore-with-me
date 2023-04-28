@@ -27,13 +27,7 @@ public class CommentDtoMapper {
                 .build();
     }
 
-    public static Comment toComment(CommentDto commentDto) {
-        String status;
-        if (commentDto.getStatus() == null) {
-            status = "PENDING";
-        } else {
-            status = commentDto.getStatus();
-        }
+    public static Comment toComment(CommentDto commentDto, String status) {
         return Comment.builder()
                 .eventId(commentDto.getEventId())
                 .commentatorId(commentDto.getCommentatorId())

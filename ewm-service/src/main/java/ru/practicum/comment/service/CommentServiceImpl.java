@@ -12,6 +12,7 @@ import ru.practicum.comment.model.Comment;
 import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.error.EwmException;
 import ru.practicum.error.model.EwmExceptionModel;
+import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.user.repository.UserRepository;
 
@@ -38,34 +39,31 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentWithNamesDto> findCommentsByEventId(Integer eventId, Integer from, Integer size) {
+    public List<CommentWithNamesDto> findCommentsByEventId(Integer eventId, Integer from, Integer size) throws EwmException {
+        Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                new EwmException(new EwmExceptionModel("Event id:" + eventId + " was not found", "The required object was not found.", "NOT_FOUND",
+                        HttpStatus.NOT_FOUND)));
+        String title = event.getTitle();
         Pageable pageable = PageRequest.of(from / size, size);
         List<Comment> eventComments = commentRepository.findCommentsByEventIdAndStatusOrderByCreatedDesc(eventId, "PUBLISHED", pageable);
         List<CommentWithNamesDto> eventCommentWithNamesDtoList = new ArrayList<>();
         for (Comment comment : eventComments) {
-            String event = eventRepository.findById(comment.getEventId()).orElseThrow().getTitle();
             String commentator = userRepository.findById(comment.getCommentatorId()).orElseThrow().getName();
-            eventCommentWithNamesDtoList.add(CommentDtoMapper.toCommentWithNamesDto(comment, event, commentator));
+            eventCommentWithNamesDtoList.add(CommentDtoMapper.toCommentWithNamesDto(comment, title, commentator));
         }
         return eventCommentWithNamesDtoList;
     }
 
     @Override
     public CommentDto addComment(CommentDto commentDto) {
-        Comment comment = CommentDtoMapper.toComment(commentDto);
+        Comment comment = CommentDtoMapper.toComment(commentDto, "PENDING");
         return CommentDtoMapper.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentDto updateComment(Integer commentId, Integer userId, CommentDto commentDto) throws EwmException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
-                new EwmException(new EwmExceptionModel("Comment id:" + commentId + " was not found", "The required object was not found.", "NOT_FOUND",
-                        HttpStatus.NOT_FOUND)));
-        if (!Objects.equals(comment.getCommentatorId(), userId)) {
-            throw new EwmException(new EwmExceptionModel("User is not the Commentator", "Data Integrity Violation.", "CONFLICT", // 409
-                    HttpStatus.CONFLICT));
-        }
-        Comment newComment = CommentDtoMapper.toComment(commentDto);
+        Comment comment = ValidateUpdateComment(commentDto, commentId);
+        Comment newComment = CommentDtoMapper.toComment(commentDto, comment.getStatus());
         if (newComment.getText() != null) {
             comment.setText(newComment.getText());
         } else {
@@ -77,10 +75,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateCommentStatus(Integer commentId, CommentDto commentDto) throws EwmException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
-                new EwmException(new EwmExceptionModel("Comment id:" + commentId + " was not found", "The required object was not found.", "NOT_FOUND",
-                        HttpStatus.NOT_FOUND)));
-        Comment newComment = CommentDtoMapper.toComment(commentDto);
+        Comment comment = ValidateUpdateComment(commentDto, commentId);
+        Comment newComment = CommentDtoMapper.toComment(commentDto, commentDto.getStatus());
         if (newComment.getStatus() != null) {
             comment.setStatus(newComment.getStatus());
         } else {
@@ -105,4 +101,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
+    Comment ValidateUpdateComment(CommentDto commentDto, Integer commentId) throws EwmException {
+        Comment comment;
+        if (commentDto.getId() == null) {
+            throw new EwmException(new EwmExceptionModel("Field: id. Error: must not be blank. Value: null", "Incorrectly made request.", "BAD_REQUEST",
+                    HttpStatus.BAD_REQUEST));
+        }
+        comment = commentRepository.findById(commentId).orElseThrow(() ->
+                new EwmException(new EwmExceptionModel("Comment id:" + commentId + " was not found", "The required object was not found.", "NOT_FOUND",
+                        HttpStatus.NOT_FOUND)));
+        return comment;
+    }
 }
