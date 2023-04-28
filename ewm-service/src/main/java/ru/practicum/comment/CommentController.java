@@ -1,6 +1,7 @@
 package ru.practicum.comment;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.CommentWithNamesDto;
@@ -51,13 +52,15 @@ public class CommentController {
         return commentService.updateCommentStatus(commentId, commentDto);
     }
 
-    @DeleteMapping("comments/{commentId}")
+    @DeleteMapping("comments/{commentId}") // ++
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteCommentByUser(@RequestHeader(value = HEADER) Integer userId,
                                     @PathVariable Integer commentId) throws EwmException {
         commentService.deleteCommentByUser(userId, commentId);
     }
 
-    @DeleteMapping("/admin/comments/{commentId}")
+    @DeleteMapping("/admin/comments/{commentId}") // ++
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteCommentByAdmin(@PathVariable Integer commentId) {
         commentService.deleteCommentByAdmin(commentId);
     }
