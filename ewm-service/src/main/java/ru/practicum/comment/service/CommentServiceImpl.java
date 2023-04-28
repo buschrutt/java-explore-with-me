@@ -62,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateComment(Integer commentId, Integer userId, CommentDto commentDto) throws EwmException {
-        Comment comment = ValidateUpdateComment(commentDto, commentId);
+        Comment comment = validateUpdateComment(commentDto, commentId);
         Comment newComment = CommentDtoMapper.toComment(commentDto, comment.getStatus());
         if (newComment.getText() != null) {
             comment.setText(newComment.getText());
@@ -75,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateCommentStatus(Integer commentId, CommentDto commentDto) throws EwmException {
-        Comment comment = ValidateUpdateComment(commentDto, commentId);
+        Comment comment = validateUpdateComment(commentDto, commentId);
         Comment newComment = CommentDtoMapper.toComment(commentDto, commentDto.getStatus());
         if (newComment.getStatus() != null) {
             comment.setStatus(newComment.getStatus());
@@ -101,7 +101,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     // %%%%%%%%%% %%%%%%%%%% SUPPORTING
-    Comment ValidateUpdateComment(CommentDto commentDto, Integer commentId) throws EwmException {
+    Comment validateUpdateComment(CommentDto commentDto, Integer commentId) throws EwmException {
         Comment comment;
         if (commentDto.getId() == null) {
             throw new EwmException(new EwmExceptionModel("Field: id. Error: must not be blank. Value: null", "Incorrectly made request.", "BAD_REQUEST",
