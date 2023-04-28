@@ -5,20 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.PackagePrivate;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
 @PackagePrivate
-public class CommentDto {
+public class CommentWithNamesDto {
     Integer id;
-    @NotNull
-    Integer eventId;
-    @NotNull
-    Integer commentatorId;
-    @NotNull
+    String event;
+    String commentator;
     String text;
     LocalDateTime created;
     String status;
